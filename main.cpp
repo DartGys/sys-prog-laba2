@@ -3,6 +3,11 @@
 #include <vector>
 #include <unordered_map>
 
+struct Result {
+    bool is_accepted;
+    std::string accepted_word;
+};
+
 struct Automaton {
     int states;
     int startState;
@@ -60,7 +65,10 @@ bool acceptWord(Automaton fa, const std::string word) {
     return false;
 }
 
-bool checkForWords(const Automaton &automaton, const std::string &w0) {
+Result checkForWords(const Automaton& automaton, const std::string& w0) {
+    Result result;
+    result.is_accepted = false;
+
     for (int len = 1; len <= 10; ++len) {
         for (int i = 0; i < (1 << len); ++i) {
             std::string w1;
@@ -68,10 +76,15 @@ bool checkForWords(const Automaton &automaton, const std::string &w0) {
                 if (i & (1 << j)) w1 += 'b';
                 else w1 += 'a';
             }
-            if (acceptWord(automaton, w0 + w1)) return true;
+            if (acceptWord(automaton, w0 + w1)) {
+                result.is_accepted = true;
+                result.accepted_word = w0 + w1;
+                return result;
+            }
         }
     }
-    return false;
+
+    return result;
 }
 
 int main() {
@@ -82,11 +95,14 @@ int main() {
     std::cout << "Enter w0: ";
     std::cin >> w0;
 
-    if (checkForWords(automaton, w0)) {
-        std::cout << "Form w0 w1 accepted by the automaton" << std::endl;
+    Result result = checkForWords(automaton, w0);
+
+    if (result.is_accepted) {
+        std::cout << "Form w0 w1 accepted by the automaton. Accepted word: " << result.accepted_word << std::endl;
     } else {
         std::cout << "Form w0 w1 does not accepted by the automaton" << std::endl;
     }
 
     return 0;
 }
+
